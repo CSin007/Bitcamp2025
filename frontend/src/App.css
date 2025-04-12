@@ -2,9 +2,20 @@
 .App {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
-  padding: 2rem;
+  padding: 0;
   background: #f9fbff;
   min-height: 100vh;
+}
+
+/* Hero Section with Title and Spline */
+.hero-section {
+  position: relative;
+  padding: 2rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
+  overflow: hidden;
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  margin-bottom: 3rem;
 }
 
 h1 {
@@ -12,42 +23,93 @@ h1 {
   margin-bottom: 1rem;
 }
 
+.splineWrapper {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  margin: 0 auto 30px auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  background-color: #2a2a2a;
+  max-width: 900px;
+}
+
+.splineWrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  transform: scale(1.05); /* slightly zoom in the animation */
+}
+
+.animated-header {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3.5rem;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  animation: glow 2s ease-in-out infinite alternate;
+  position: relative;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #8b5cf6, 0 0 20px #8b5cf6;
+  }
+  
+  to {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #4f46e5, 0 0 40px #4f46e5;
+  }
+}
+
 .burnout-meter {
   font-weight: bold;
-  margin-bottom: 20px;
+  margin: 2rem auto;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 15px;
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .burnout-bar {
-  width: 200px;
+  width: 100%;
   height: 20px;
   margin: 0.5rem auto;
-  border-radius: 8px;
+  border-radius: 10px;
+  background-color: green;
+  transition: background-color 0.5s ease;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Floating Action Buttons */
 .fab-group {
   position: fixed;
-  top: 100px;
+  top: 50%;
   left: 20px;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
   z-index: 10;
 }
 
 .fab {
   font-size: 2rem;
-  padding: 14px;
+  padding: 16px;
   border: none;
   border-radius: 50%;
   background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .fab:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Floating Popups */
@@ -57,76 +119,154 @@ h1 {
   right: 30px;
   background: #fff;
   border: 2px solid #ccc;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   z-index: 20;
-  width: 300px;
+  width: 350px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.journal h3, .tasks h3, .quote-popup h3 {
+  margin-top: 0;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  color: #4f46e5;
 }
 
 textarea {
   width: 100%;
-  padding: 10px;
+  padding: 15px;
   font-size: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #ccc;
   resize: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
 /* Tasks List */
 .tasks input[type="text"] {
-  padding: 8px;
-  margin-bottom: 10px;
-  width: 90%;
-  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 15px;
+  width: 70%;
+  border-radius: 8px;
   border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.tasks button {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.tasks button:hover {
+  background-color: #4338ca;
 }
 
 .tasks ul {
   list-style-type: none;
   padding: 0;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .tasks li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  font-size: 0.95rem;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
 }
 
-.tasks button {
-  margin-left: 5px;
-  font-size: 0.9rem;
+.tasks li button {
+  background-color: transparent;
+  color: #666;
+  padding: 5px;
+  margin-left: 10px;
+  font-size: 1rem;
+}
+
+.tasks li button:hover {
+  color: #ef4444;
+  background-color: transparent;
 }
 
 /* Quote Popup */
+.quote-popup {
+  width: 400px;
+}
+
 .quote-popup p {
   font-style: italic;
   color: #333;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f5f3ff;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.1rem;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
 .quote-popup button {
-  background-color: #2196f3;
+  background-color: #4f46e5;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.quote-popup button:hover {
+  background-color: #4338ca;
 }
 
 /* Dashboard Area */
 .dashboard {
-  margin-top: 2rem;
+  margin: 2rem auto;
   background: #fff;
-  padding: 1rem;
-  border-radius: 10px;
-  width: 60%;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border-radius: 15px;
+  width: 80%;
+  max-width: 900px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard h3 {
+  color: #333;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  text-align: left;
 }
 
 .mock-chart {
@@ -135,16 +275,140 @@ textarea {
     90deg,
     #e0e0e0,
     #e0e0e0 10px,
-    #ffffff 10px,
-    #ffffff 20px
+    #f0f0f0 10px,
+    #f0f0f0 20px
   );
   margin-top: 1rem;
-  border-radius: 6px;
+  border-radius: 10px;
 }
 
 /* Game */
 .game-container iframe {
   width: 100%;
-  border-radius: 10px;
-  border: 2px solid #ccc;
+  max-width: 900px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin: 2rem auto;
+  display: block;
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .splineWrapper {
+    height: 400px;
+  }
+  
+  .animated-header {
+    font-size: 2.5rem;
+  }
+  
+  .fab-group {
+    left: 10px;
+  }
+  
+  .fab {
+    font-size: 1.5rem;
+    padding: 14px;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+
+  }
+  .fab:hover {
+    transform: scale(1.15);
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.4);
+  }
+  
+  .journal, .tasks, .quote-popup {
+    width: 300px;
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .dashboard {
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .splineWrapper {
+    height: 300px;
+  }
+  
+  .animated-header {
+    font-size: 3rem;
+  color: white;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  text-shadow:
+    0 0 10px #ff00cc,
+    0 0 20px #ff00cc,
+    0 0 30px #ff99cc,
+    0 0 40px #cc00ff;
+  }
+  
+  .fab-group {
+    top: unset;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .fab {
+    font-size: 1.2rem;
+    padding: 12px;
+  }
+  
+  .journal, .tasks, .quote-popup {
+    width: 90%;
+    right: 5%;
+    left: 5%;
+  }
+}
+
+.fab.playing {
+  animation: pulseGlow 1.5s infinite;
+}
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 5px #16d293; }
+  50% { box-shadow: 0 0 20px #05f8a7; }
+  100% { box-shadow: 0 0 5px #02faa7; }
+}
+.main-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.left-panel {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.left-panel.with-game {
+  flex: 2;
+}
+
+.right-panel {
+  flex: 1;
+  height: 600px;
+  background: #121212;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+.dashboard {
+  text-align: center;
+  margin: 50px auto;
+}
+
+.dashboard h3 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.react-activity-calendar__container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+

@@ -1,1 +1,8 @@
 # Bitcamp2025
+
+## Problem: 
+
+## Idea: ???
+
+## Stack: ???
+

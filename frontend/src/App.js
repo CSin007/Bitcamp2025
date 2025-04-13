@@ -1,8 +1,6 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import GitHubCalendar from "react-github-calendar";
-
 import Confetti from "react-confetti";
 
 const motivationalQuotes = [
@@ -178,10 +176,25 @@ const App = () => {
       {showConfetti && (
         <Confetti width={windowDimensions.width} height={windowDimensions.height} />
       )}
-      <div className="dashboard">
-        <h3>📊 GitHub Contributions</h3>
-        {/* <GitHubCalendar username="CSin007" /> */}
 
+      <div className="dashboard">
+        <h3>📊 Visualizations</h3>
+        <div className="viz-grid">
+          <div className="viz-card">
+            <h4>GitHub Contributions</h4>
+            <p className="viz-placeholder">😴 Github Contributions.</p>
+          </div>
+
+          <div className="viz-card">
+            <h4>Sleep Schedule</h4>
+            <p className="viz-placeholder">😴 Sleep data coming soon...</p>
+          </div>
+
+          <div className="viz-card">
+            <h4>Daily Steps</h4>
+            <p className="viz-placeholder">🚶‍♀️ Step tracking visualization here</p>
+          </div>
+        </div>
       </div>
     </div>
   );

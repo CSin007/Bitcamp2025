@@ -2,6 +2,8 @@ from flask_cors import CORS
 from flask import Flask, jsonify
 from pymongo import MongoClient
 import os
+import json
+import re
 from dotenv import load_dotenv
 import google.generativeai as genai
 from urllib.parse import quote_plus
@@ -39,19 +41,63 @@ collection2 = db["github_data"]
 @app.route("/")  # Define what happens at root URL
 def home():
     # Set up the API key
+    # genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+    # # Choose a model
+    # model = genai.GenerativeModel("gemini-2.0-flash")
+
+    # # Ask a question
+    # question = "What is the point of fatigue?"
+    # response = model.generate_content(question)
+
+    # # Print the answer
+    # # print(response.text)
+
+    return "Hello, world!"
+
+
+# @app.route("/api/quotes")  # Define what happens at root URL
+# def quotes():
+#     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+#     model = genai.GenerativeModel("gemini-2.0-flash")
+#     question = "Generate a list of ten funny quotes about being burnt out and return it as a json object."
+#     response = model.generate_content(question)
+
+#     try:
+#         # Convert response.text to a Python dict first
+#         quote_data = json.loads(response.text)
+#         return jsonify(quote_data)  # Sends real JSON with correct headers
+#     except Exception as e:
+#         return (
+#             jsonify({"error": "Could not parse Gemini response", "details": str(e)}),
+#             500,
+#         )
+
+
+@app.route("/api/quotes")
+def quotes():
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-    # Choose a model
     model = genai.GenerativeModel("gemini-2.0-flash")
-
-    # Ask a question
-    question = "What is the point of fatigue?"
+    question = "Generate a list of ten funny quotes about being burnt out and return it as a json object."
     response = model.generate_content(question)
 
-    # Print the answer
-    # print(response.text)
+    raw_text = response.text.strip()
 
-    return response.text  # "Hello, world!"
+    # Remove Markdown code block wrapper
+    if raw_text.startswith("```json"):
+        raw_text = re.sub(r"```json\s*", "", raw_text)  # remove ```json
+        raw_text = raw_text.replace("```", "").strip()  # remove ending ```
+
+    try:
+        quote_data = json.loads(raw_text)
+        return jsonify(quote_data)
+    except Exception as e:
+        print("Failed to parse Gemini response:")
+        print(repr(raw_text))
+        return (
+            jsonify({"error": "Could not parse Gemini response", "details": str(e)}),
+            500,
+        )
 
 
 @app.route("/api/fitbit/sleep")

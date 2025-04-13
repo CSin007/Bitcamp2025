@@ -1,6 +1,8 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import VisualizationPanel from "./VisualizationPanel";
+
 import Confetti from "react-confetti";
 import VisualizationPanel from "./VisualizationPanel";
 
@@ -306,10 +308,10 @@ const App = () => {
                 </div>
             )}
             {/* Dashboard */}
-            <div className="dashboard">
-                <h3>📊 GitHub Contributions</h3>
-                {/* <GitHubCalendar username="CSin007" /> */}
-            </div>
+      
+    <div className="dashboard">
+              <h3>📊 Visualizations</h3>
+              <VisualizationPanel />          </div>
         </div>
     );
 };

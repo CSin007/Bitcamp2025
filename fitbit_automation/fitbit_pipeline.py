@@ -15,13 +15,9 @@ ACCESS_TOKEN = os.getenv("FITBIT_ACCESS_TOKEN")
 REFRESH_TOKEN = os.getenv("FITBIT_REFRESH_TOKEN")
 MONGO_USERNAME = os.getenv("MONGODB_USERNAME")
 MONGO_PASSWORD = quote_plus(os.getenv("MONGODB_PASSWORD"))
-# MONGO_CLUSTER = os.getenv("MONGO_CLUSTER")
 
 # MongoDB setup
-# uri = (
-#     f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}"
-#     "@cluster0.ph7revd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-# )
+
 uri = (
     f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}"
     "@ac-dlwqh3t-shard-00-00.11aamhq.mongodb.net:27017,"
@@ -71,19 +67,74 @@ def refresh_token():
     REFRESH_TOKEN = tokens["refresh_token"]
 
     # Save back to .env (optional, or save to DB/file)
-    with open(".env", "r") as f:
-        lines = f.readlines()
-    with open(".env", "w") as f:
-        for line in lines:
-            if line.startswith("FITBIT_ACCESS_TOKEN="):
-                f.write(f"FITBIT_ACCESS_TOKEN={ACCESS_TOKEN}\n")
-            elif line.startswith("FITBIT_REFRESH_TOKEN="):
-                f.write(f"FITBIT_REFRESH_TOKEN={REFRESH_TOKEN}\n")
-            else:
-                f.write(line)
+    env_path = ".env"
+
+    # Read existing lines
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            lines = f.readlines()
+    else:
+        lines = []
+
+    # Update lines if keys found
+    for i, line in enumerate(lines):
+        if line.startswith("FITBIT_ACCESS_TOKEN="):
+            lines[i] = f"FITBIT_ACCESS_TOKEN={ACCESS_TOKEN}\n"
+            found_access = True
+        elif line.startswith("FITBIT_REFRESH_TOKEN="):
+            lines[i] = f"FITBIT_REFRESH_TOKEN={REFRESH_TOKEN}\n"
+            found_refresh = True
+
+    # Append if not found
+    if not found_access:
+        lines.append(f"FITBIT_ACCESS_TOKEN={ACCESS_TOKEN}\n")
+    if not found_refresh:
+        lines.append(f"FITBIT_REFRESH_TOKEN={refresh_token}\n")
+
+    # Write back to .env
+    with open(env_path, "w") as f:
+        f.writelines(lines)
+    print("Tokens updated in .env file.")
+    print("Access token:", ACCESS_TOKEN)
+    print("Refresh token:", REFRESH_TOKEN)
 
     print("Token refreshed.")
     return True
+
+
+def get_day_data(target_date):
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+
+    steps_url = (
+        f"https://api.fitbit.com/1/user/-/activities/steps/date/{target_date}/1d.json"
+    )
+    sleep_url = f"https://api.fitbit.com/1.2/user/-/sleep/date/{target_date}.json"
+
+    steps_res = requests.get(steps_url, headers=headers)
+    sleep_res = requests.get(sleep_url, headers=headers)
+
+    if steps_res.status_code == 401 or sleep_res.status_code == 401:
+        if refresh_token():
+            return get_day_data(target_date)
+        else:
+            return None
+
+    steps_data = steps_res.json()
+    sleep_data = sleep_res.json()
+
+    try:
+        step_count = int(steps_data["activities-steps"][0]["value"])
+    except (KeyError, IndexError):
+        step_count = 0
+
+    try:
+        total_sleep = sum(
+            entry["minutesAsleep"] for entry in sleep_data.get("sleep", [])
+        )
+    except Exception:
+        total_sleep = 0
+
+    return {"date": target_date, "steps": step_count, "totalMinutesAsleep": total_sleep}
 
 
 # API call helper
@@ -113,19 +164,22 @@ def get_fitbit_data():
 
 # Run the pipeline
 def main():
-    print("Fetching Fitbit data...")
-    steps, sleep = get_fitbit_data()
+    print("Fetching Fitbit data for last 5 days...")
+    today = date.today()
+    all_days = []
 
-    if steps and sleep:
-        doc = {
-            "date": (date.today() - timedelta(days=1)).isoformat(),
-            "steps": steps,
-            "sleep": sleep,
-        }
-        collection.insert_one(doc)
-        print("Data inserted into MongoDB.")
-    else:
-        print("Could not fetch Fitbit data.")
+    for offset in range(1, 6):  # Days 1 to 5 ago
+        d = (today - timedelta(days=offset)).isoformat()
+        day_data = get_day_data(d)
+        if day_data:
+            collection.update_one(
+                {"date": day_data["date"]}, {"$set": day_data}, upsert=True
+            )
+            all_days.append(day_data)
+
+    print("Inserted/Updated entries for last 5 days:")
+    for entry in all_days:
+        print(entry)
 
 
 if __name__ == "__main__":

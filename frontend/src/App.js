@@ -13,6 +13,7 @@ const motivationalQuotes = [
     "Stretch it out! You've earned it. 🧘‍♂️"
 ];
 
+
 const App = () => {
     const [showConfetti, setShowConfetti] = useState(false);
     const [burnout, setBurnout] = useState(50);
@@ -31,6 +32,8 @@ const App = () => {
     const [showJournalHistory, setShowJournalHistory] = useState(false);
     const [currentSong, setCurrentSong] = useState(null);
     const [showSpotifyPlayer, setShowSpotifyPlayer] = useState(false);
+    const [motivationalQuotes, setMotivationalQuotes] = useState([]);
+    
     const spotifyTracks = [
         "https://open.spotify.com/embed/track/3sK8wGT43QFpWrvNQsrQya", // DTMF
         "https://open.spotify.com/embed/track/6koKhrBBcExADvWuOgceNZ", // Open Arms
@@ -39,6 +42,23 @@ const App = () => {
         "https://open.spotify.com/embed/track/5rpCUsEfBLIumvrxrahnKF"  // Wishes
     ];
 
+
+    useEffect(() => {
+        const fetchQuotes = async () => {
+          try {
+            const response = await fetch("http://127.0.0.1:5000/api/quotes");
+            const data = await response.json();
+            const quotesOnly = (data.funny_burnout_quotes || []).map(q => q.quote);
+            console.log("✅ Quotes only:", quotesOnly);
+            quotesOnly.forEach(q => motivationalQuotes.push(q));
+            console.log("✅ Motivational Quotes:", motivationalQuotes);
+          } catch (error) {
+            console.error("Error fetching from /api/quotes:", error);
+          }
+        };
+      
+        fetchQuotes();
+      }, []);
 
     useEffect(() => {
         const handleResize = () => {
@@ -73,7 +93,12 @@ const App = () => {
         setShowGame(prev => !prev);
     };
 
-  
+    const handleAddTask = () => {
+        if (newTask.trim()) {
+            setTasks([...tasks, { text: newTask, done: false }]);
+            setNewTask("");
+        }
+    };
 
     const toggleTask = (index) => {
         const updatedTasks = [...tasks];
@@ -146,7 +171,7 @@ const App = () => {
                                     <div className="burnout-tip">
                                         🌿 Tip: Since you're vibing, try a 3-minute breathing break to keep that energy flowing.
                                     </div>
-                                    <button className="cta-button">🧘 Fix My Brain (Gently)</button>
+                                    <button className="cta-button" onClick={handleMotivation}>🧘 Fix My Brain (Gently)</button>
                                 </div>
                             </div>
 

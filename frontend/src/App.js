@@ -33,7 +33,8 @@ const App = () => {
     const [currentSong, setCurrentSong] = useState(null);
     const [showSpotifyPlayer, setShowSpotifyPlayer] = useState(false);
     const [motivationalQuotes, setMotivationalQuotes] = useState([]);
-    
+    const [cameraOn, setCameraOn] = useState(false);
+
     const spotifyTracks = [
         "https://open.spotify.com/embed/track/3sK8wGT43QFpWrvNQsrQya", // DTMF
         "https://open.spotify.com/embed/track/6koKhrBBcExADvWuOgceNZ", // Open Arms
@@ -42,7 +43,22 @@ const App = () => {
         "https://open.spotify.com/embed/track/5rpCUsEfBLIumvrxrahnKF"  // Wishes
     ];
 
-
+    useEffect(() => {
+        fetch("http://127.0.0.1:5000/api/burnout")
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.burnout_score !== undefined) {
+              setBurnout(data.burnout_score); // 👈 sets the initial burnout level
+              console.log("🔥 Burnout score loaded from backend:", data.burnout_score);
+            } else {
+              console.warn("⚠️ No burnout_score found in response:", data);
+            }
+          })
+          .catch((err) => {
+            console.error("❌ Failed to fetch burnout score:", err);
+          });
+      }, []);
+      
     useEffect(() => {
         const fetchQuotes = async () => {
           try {
@@ -79,12 +95,13 @@ const App = () => {
 
     const handleDrinkWater = () => {
         setShowWaterPopup(true);
-        setBurnout(prev => Math.max(prev - 2, 0));
+        setBurnout(prev => Math.max(prev - 1, 0));
         setTimeout(() => setShowWaterPopup(false), 3000);
     };
 
     const handleMotivation = () => {
         const random = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+        setBurnout(prev => Math.max(prev + 3, 0));
         setQuote(random);
         setShowQuoteBox(true);
     };
@@ -137,6 +154,27 @@ const App = () => {
         // }
         // setIsPlayingMusic(!isPlayingMusic);
     };
+
+    const handleCamera = async () => {
+        const action = cameraOn ? "stop" : "start";
+      
+        try {
+          const res = await fetch("http://127.0.0.1:5000/api/toggle-camera", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ action })
+          });
+      
+          const data = await res.json();
+          console.log("📸 Camera response:", data);
+      
+          setCameraOn(!cameraOn); // toggle UI state
+        } catch (err) {
+          console.error("Error toggling camera:", err);
+        }
+      };
 
     return (
         <div className="App">
@@ -195,6 +233,7 @@ const App = () => {
 
                     {/* Floating Buttons */}
                     <div className="fab-group">
+                       <button className="fab" onClick={handleCamera} title="Camera 📸">📸</button>
                         <button className="fab" onClick={handleDrinkWater} title="Water Reminder 💧">💧</button>
                         <button className="fab" onClick={handleMotivation} title="Motivational Quote ✨">✨</button>
                         <button className="fab" onClick={handleGameMode} title="Game Mode 🎮">🎮</button>

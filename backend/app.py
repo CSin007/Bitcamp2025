@@ -33,6 +33,7 @@ client = MongoClient(
 )
 db = client["burnoutbuddy"]
 collection = db["fitbit_data"]
+collection2 = db["github_data"]
 
 
 @app.route("/")  # Define what happens at root URL
@@ -66,6 +67,24 @@ def get_sleep_data():
                 "date": doc.get("date"),
                 "steps": doc.get("steps", 0),
                 "totalMinutesAsleep": doc.get("totalMinutesAsleep", 0),
+            }
+        )
+
+    return jsonify(result)
+
+
+@app.route("/api/github/commits")
+def get_github_commits():
+    # Get the 5 most recent documents sorted by date descending
+    docs = collection2.find().sort("date", -1).limit(5)
+
+    # Transform documents into a list of dicts
+    result = []
+    for doc in docs:
+        result.append(
+            {
+                "date": doc.get("date"),
+                "commit_count": doc.get("commit_count", 0),
             }
         )
 

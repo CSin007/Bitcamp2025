@@ -180,7 +180,14 @@ h1 {
     color: #f0f8ff;
     box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.05);
 }
-
+.row-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    flex-wrap: nowrap; /* prevent wrapping */
+  }
 /* Floating Action Buttons */
 .fab-group {
     position: absolute;
@@ -697,5 +704,57 @@ textarea:focus {
   width: 90%;
 }
 
+.row-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem 3rem;
+    flex-wrap: wrap;
+}
 
+.hero-left {
+    flex: 1;
+    min-width: 400px;
+    max-width: 700px;
+    text-align: left;
+    color: white;
+    padding-left: 4rem;
+}
 
+.water-popup {
+    position: fixed;
+    top: 100px;
+    right: 30px;
+    background: #e0f7fa;
+    color: #000000;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    font-weight: 500;
+    z-index: 999;
+    width: 250px;
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spotify-embed {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    z-index: 999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+}

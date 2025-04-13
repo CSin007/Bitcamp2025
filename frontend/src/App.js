@@ -4,7 +4,6 @@ import "./App.css";
 import VisualizationPanel from "./VisualizationPanel";
 
 import Confetti from "react-confetti";
-import VisualizationPanel from "./VisualizationPanel";
 
 const motivationalQuotes = [
     "You got this! 💪",

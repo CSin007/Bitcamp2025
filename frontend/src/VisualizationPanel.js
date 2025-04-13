@@ -7,12 +7,12 @@ const VisualizationPanel = () => {
   const [githubData, setGithubData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/fitbit/sleep")
+    fetch("http://127.0.0.1:5000/api/fitbit/sleep")
       .then((res) => res.json())
       .then((data) => setFitbitData(data))
       .catch((err) => console.error("Error fetching Fitbit data:", err));
 
-    fetch("http://localhost:5000/api/github/commits")
+    fetch("http://127.0.0.1:5000/api/github/commits")
       .then((res) => res.json())
       .then((data) => setGithubData(data))
       .catch((err) => console.error("Error fetching GitHub data:", err));

@@ -73,12 +73,7 @@ const App = () => {
         setShowGame(prev => !prev);
     };
 
-    const handleAddTask = () => {
-        if (newTask.trim()) {
-            setTasks([...tasks, { text: newTask, done: false }]);
-            setNewTask("");
-        }
-    };
+  
 
     const toggleTask = (index) => {
         const updatedTasks = [...tasks];

@@ -3,3 +3,6 @@ python-dotenv
 flask-cors
 pymongo
 google-generativeai
+opencv-python
+mediapipe
+imutils

@@ -411,12 +411,12 @@ textarea:focus {
 .viz-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.4rem;
   justify-content: space-between;
 }
 
 .viz-card {
-  width: 40%; /* Show 2 per row */
+  width: 42%; /* Show 2 per row */
   background: white;
   padding: 1rem;
   border-radius: 12px;

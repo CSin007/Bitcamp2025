@@ -28,6 +28,8 @@ const VisualizationPanel = () => {
   const sleep = fitbitData.map((d) => d.totalMinutesAsleep);
 
   const githubDates = githubData.map((d) => formatDate(d.date));
+  console.log("GitHub Dates:", githubDates);
+
   const commits = githubData.map((d) => d.commit_count);
 
   return (
@@ -50,7 +52,17 @@ const VisualizationPanel = () => {
           }}
           options={{
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } },
+            scales: {
+              y: { beginAtZero: true },
+              x: { reverse: true 
+                ,
+                ticks: {
+                  maxRotation: 40,
+                  minRotation: 40,
+                },
+              },
+              
+            },
           }}
         />
       </div>
@@ -70,7 +82,18 @@ const VisualizationPanel = () => {
           }}
           options={{
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } },
+            scales: {
+              y: { beginAtZero: true },
+              x: { reverse: true 
+
+                ,
+                ticks: {
+                  maxRotation: 40,
+                  minRotation: 40,
+                },
+              },
+              
+            },
           }}
         />
       </div>
@@ -90,7 +113,17 @@ const VisualizationPanel = () => {
           }}
           options={{
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } },
+            scales: {
+              y: { beginAtZero: true },
+              x: { reverse: true
+                ,
+                ticks: {
+                  maxRotation: 40,
+                  minRotation: 40,
+                },
+
+               },
+            },
           }}
         />
       </div>

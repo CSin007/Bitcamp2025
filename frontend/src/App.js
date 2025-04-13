@@ -1,190 +1,317 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import GitHubCalendar from "react-github-calendar";
-
 import Confetti from "react-confetti";
+import VisualizationPanel from "./VisualizationPanel";
 
 const motivationalQuotes = [
-  "You got this! 💪",
-  "Take a breath and crush the next bug 🐛",
-  "Remember to blink! 👀",
-  "Every great developer was once a beginner.",
-  "Stretch it out! You've earned it. 🧨‍♂️"
+    "You got this! 💪",
+    "Take a breath and crush the next bug 🐛",
+    "Remember to blink! 👀",
+    "Every great developer was once a beginner.",
+    "Stretch it out! You've earned it. 🧘‍♂️"
 ];
 
 const App = () => {
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [burnout, setBurnout] = useState(50);
-  const [quote, setQuote] = useState("");
-  const [windowDimensions, setWindowDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const [tasks, setTasks] = useState([{ text: "Finish feature implementation", done: false }]);
-  const [newTask, setNewTask] = useState("");
-  const [showJournal, setShowJournal] = useState(false);
-  const [showTasks, setShowTasks] = useState(false);
-  const [showQuoteBox, setShowQuoteBox] = useState(false);
-  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
-  const [showGame, setShowGame] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [burnout, setBurnout] = useState(50);
+    const [quote, setQuote] = useState("");
+    const [windowDimensions, setWindowDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+    const [tasks, setTasks] = useState([{ text: "Finish feature implementation", done: false }]);
+    const [newTask, setNewTask] = useState("");
+    const [showJournal, setShowJournal] = useState(false);
+    const [showTasks, setShowTasks] = useState(false);
+    const [showQuoteBox, setShowQuoteBox] = useState(false);
+    const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+    const [showGame, setShowGame] = useState(false);
+    const [showWaterPopup, setShowWaterPopup] = useState(false);
+    const [journalEntries, setJournalEntries] = useState([]);
+    const [newJournal, setNewJournal] = useState("");
+    const [showJournalHistory, setShowJournalHistory] = useState(false);
+    const [currentSong, setCurrentSong] = useState(null);
+    const [showSpotifyPlayer, setShowSpotifyPlayer] = useState(false);
+    const spotifyTracks = [
+        "https://open.spotify.com/embed/track/3sK8wGT43QFpWrvNQsrQya", // DTMF
+        "https://open.spotify.com/embed/track/6koKhrBBcExADvWuOgceNZ", // Open Arms
+        "https://open.spotify.com/embed/track/0o9ivTBX7mjTnaUYF4Gk6t", // The Imitation Game
+        "https://open.spotify.com/embed/track/3ATRPvWFMu2F1U8b1Bh7ep", // Ceiling Games
+        "https://open.spotify.com/embed/track/5rpCUsEfBLIumvrxrahnKF"  // Wishes
+    ];
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowDimensions({ width: window.innerWidth, height: window.innerHeight });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowDimensions({ width: window.innerWidth, height: window.innerHeight });
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        const waterReminder = setInterval(() => {
+            alert("💧 Time to drink water!");
+            setBurnout(prev => Math.min(prev + 5, 100));
+        }, 30 * 60 * 1000);
+
+        return () => clearInterval(waterReminder);
+    }, []);
+
+    const handleDrinkWater = () => {
+        setShowWaterPopup(true);
+        setBurnout(prev => Math.max(prev - 2, 0));
+        setTimeout(() => setShowWaterPopup(false), 3000);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
-  useEffect(() => {
-    const waterReminder = setInterval(() => {
-      alert("💧 Time to drink water!");
-      setBurnout(prev => Math.min(prev + 5, 100));
-    }, 30 * 60 * 1000);
+    const handleMotivation = () => {
+        const random = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+        setQuote(random);
+        setShowQuoteBox(true);
+    };
 
-    return () => clearInterval(waterReminder);
-  }, []);
+    const handleGameMode = () => {
+        setShowGame(prev => !prev);
+    };
 
-  const handleDrinkWater = () => {
-    alert("Nice! Hydration helps focus 🌊");
-    setBurnout(prev => Math.max(prev - 10, 0));
-  };
+    const handleAddTask = () => {
+        if (newTask.trim()) {
+            setTasks([...tasks, { text: newTask, done: false }]);
+            setNewTask("");
+        }
+    };
 
-  const handleMotivation = () => {
-    const random = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-    setQuote(random);
-    setShowQuoteBox(true);
-  };
+    const toggleTask = (index) => {
+        const updatedTasks = [...tasks];
+        updatedTasks[index].done = !updatedTasks[index].done;
+        setTasks(updatedTasks);
+        if (updatedTasks[index].done) {
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 6000);
+        }
+    };
 
-  const handleGameMode = () => {
-    setShowGame(prev => !prev);
-  };
+    const deleteTask = (index) => {
+        const updatedTasks = [...tasks];
+        updatedTasks.splice(index, 1);
+        setTasks(updatedTasks);
+    };
 
-  const handleAddTask = () => {
-    if (newTask.trim()) {
-      setTasks([...tasks, { text: newTask, done: false }]);
-      setNewTask("");
-    }
-  };
+    const toggleMusic = () => {
+        if (showSpotifyPlayer) {
+            // If it's already showing, hide it
+            setShowSpotifyPlayer(false);
+            setCurrentSong(null);
+            setIsPlayingMusic(false); // music is not playing
+        } else {
+            // Otherwise, pick a random song and show it
+            const randomIndex = Math.floor(Math.random() * spotifyTracks.length);
+            setCurrentSong(spotifyTracks[randomIndex]);
+            setShowSpotifyPlayer(true);
+            setIsPlayingMusic(true); // music not playing
+        }
+        // const audio = document.getElementById("calmMusic");
+        // if (isPlayingMusic) {
+        //     audio.pause();
+        // } else {
+        //     audio.play();
+        // }
+        // setIsPlayingMusic(!isPlayingMusic);
+    };
 
-  const toggleTask = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].done = !updatedTasks[index].done;
-    setTasks(updatedTasks);
-    if (updatedTasks[index].done) {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-    }
-  };
-
-  const deleteTask = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks.splice(index, 1);
-    setTasks(updatedTasks);
-  };
-
-  const toggleMusic = () => {
-    const audio = document.getElementById("calmMusic");
-    if (isPlayingMusic) {
-      audio.pause();
-    } else {
-      audio.play();
-    }
-    setIsPlayingMusic(!isPlayingMusic);
-  };
-
-  return (
-    <div className="App">
-      <div className="main-layout">
-        <div className={`left-panel ${showGame ? 'with-game' : ''}`}>
-          <div className="hero-section">
-            <div className="splineWrapper">
-              <iframe
-                src="https://my.spline.design/miniroomremakecopyprogrammerroom-O554V1QxaQp9RyugP82jjp7B/"
-                width="100%"
-                height="100%"
-                title="3D Burnout Scene"
-              ></iframe>
+    return (
+        <div className="App">
+            <div className="top-bar">
+                <h2 className="logo-text">🧠 Burnout Buddy</h2>
             </div>
 
-            <h1 className="animated-header">🧠 Burnout Buddy</h1>
+            <div className="main-layout">
+                <div className={`left-panel ${showGame ? 'with-game' : ''}`}>
+                    {/* Hero section */}
+                    <div className="hero-section row-layout">
+                        <div className="hero-left">
+                            <p className="tagline">
+                                <span className="tag-main">Overworked? 💻</span><br />
+                                <span className="tag-sub">Burnout Buddy’s got your back — hydration, vibes, and a 3D brain spa. ☕🧠</span>
+                            </p>
 
-            <div className="burnout-meter">
-              Burnout Level: <span>{burnout}/100</span>
-              <div className="burnout-bar" style={{ backgroundColor: burnout > 75 ? "red" : burnout > 50 ? "orange" : burnout > 25 ? "yellow" : "green" }} />
-              <span role="img">
-                {burnout > 75 ? "🙵‍♋️" : burnout > 50 ? "😰" : burnout > 25 ? "😌" : "😎"}
-              </span>
+                            <div className="burnout-meter">
+                                Burnout Level: <span>{burnout}/100</span>
+                                <div
+                                    className="burnout-bar"
+                                    style={{
+                                        backgroundColor:
+                                            burnout > 75 ? "red" : burnout > 50 ? "orange" : burnout > 25 ? "yellow" : "green",
+                                        width: `${burnout}%`
+                                    }}
+                                />
+                                <span style={{ fontSize: "1.5rem", display: "block", marginTop: "1rem" }}>
+                                    {burnout > 75 ? "🔥 Send help" : burnout > 50 ? "😰 Hanging in there" : burnout > 25 ? "😌 Vibing" : "🕺 Thriving"}
+                                </span>
+                                <div className="burnout-details">
+                                    <div className="burnout-tip">
+                                        🌿 Tip: Since you're vibing, try a 3-minute breathing break to keep that energy flowing.
+                                    </div>
+                                    <button className="cta-button">🧘 Fix My Brain (Gently)</button>
+                                </div>
+                            </div>
+
+                            {burnout > 80 && (
+                                <div className="alert-box">
+                                    🔥 Woah there! Might be time to touch grass 🌱
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="splineWrapper">
+                            <iframe
+                                src="https://my.spline.design/miniroomremakecopyprogrammerroom-O554V1QxaQp9RyugP82jjp7B/"
+                                width="100%"
+                                height="100%"
+                                title="3D Burnout Scene"
+                            ></iframe>
+                        </div>
+                    </div>
+
+
+                    {/* Floating Buttons */}
+                    <div className="fab-group">
+                        <button className="fab" onClick={handleDrinkWater} title="Water Reminder 💧">💧</button>
+                        <button className="fab" onClick={handleMotivation} title="Motivational Quote ✨">✨</button>
+                        <button className="fab" onClick={handleGameMode} title="Game Mode 🎮">🎮</button>
+                        <button className="fab" onClick={() => setShowJournal(prev => !prev)} title="Journal 📓">📓</button>
+                        <button className="fab" onClick={() => setShowTasks(prev => !prev)} title="Tasks 📋">📋</button>
+                        <button className={`fab ${isPlayingMusic ? "playing" : ""}`} onClick={toggleMusic} title="Lo-fi saves lives 🎵">🎵</button>
+                    </div>
+
+                    {/* Journal */}
+                    {showJournal && (
+                        <div className="journal">
+                            <div className="journal-header">
+                                <h3 className="journal-title">📓 Journal Entry</h3>
+                                <button className="close-btn" onClick={() => setShowJournal(false)}>✖️</button>
+                            </div>
+
+                            <textarea placeholder="How are you feeling today?" rows="6" />
+                            <button onClick={() => {
+                                if (newJournal.trim()) {
+                                    setJournalEntries([...journalEntries, { text: newJournal, time: new Date().toLocaleString() }]);
+                                    setNewJournal("");
+                                    setShowJournal(false);
+                                }
+                            }}>Save</button>
+                        </div>
+                    )}
+
+                    {/* Task List */}
+                    {showTasks && (
+                        <div className="tasks">
+                            <div className="tasks-header">
+                                <h3 className="tasks-title">📋 Task List</h3>
+                                <button className="close-btn" onClick={() => setShowTasks(false)}>✖️</button>
+                            </div>
+
+                            <input
+                                type="text"
+                                value={newTask}
+                                onChange={(e) => setNewTask(e.target.value)}
+                                placeholder="New Task"
+                            />
+                            <button onClick={handleAddTask}>Add Task</button>
+
+                            <ul>
+                                {tasks.map((task, idx) => (
+                                    <li key={idx}>
+                                        <input type="checkbox" checked={task.done} onChange={() => toggleTask(idx)} /> {task.text}
+                                        <button className="task-delete-btn" onClick={() => deleteTask(idx)}>✖️</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {showJournalHistory && (
+                        <div className="journal">
+                            <div className="journal-header">
+                                <h3 className="journal-title">📜 Journal History</h3>
+                                <button className="close-btn" onClick={() => setShowJournalHistory(false)}>✖️</button>
+                            </div>
+                            <ul>
+                                {journalEntries.map((entry, idx) => (
+                                    <li key={idx} style={{ marginBottom: "1rem", textAlign: "left" }}>
+                                        <strong>{entry.time}</strong><br />{entry.text}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+
+                    {/* Quote Popup */}
+                    {showQuoteBox && (
+                        <div className="quote-popup">
+                            <p>{quote}</p>
+                            <button onClick={() => setShowQuoteBox(false)}>Close</button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Game Panel */}
+                {showGame && (
+                    <div className="right-panel">
+                        <iframe
+                            id="subwayGame"
+                            src="https://subway-surfers.org/winter-holiday/"
+                            title="Subway Surfers"
+                            width="100%"
+                            height="100%"
+                            style={{ border: "none" }}
+                        ></iframe>
+                    </div>
+                )}
             </div>
-          </div>
 
-          <div className="fab-group">
-            <button className="fab" onClick={handleDrinkWater} title="Water Reminder">💧</button>
-            <button className="fab" onClick={handleMotivation} title="Motivational Quote">✨</button>
-            <button className="fab" onClick={handleGameMode} title="Game Mode">🎮</button>
-            <button className="fab" onClick={() => setShowJournal(prev => !prev)} title="Journal">📓</button>
-            <button className="fab" onClick={() => setShowTasks(prev => !prev)} title="Tasks">📋</button>
-            <button className={`fab ${isPlayingMusic ? "playing" : ""}`} onClick={toggleMusic}>🎵</button>
-          </div>
+            {/* Music */}
+            {showSpotifyPlayer && currentSong && (
+                <div className="spotify-embed">
+                    <iframe
+                        style={{ borderRadius: "12px" }}
+                        src={`${currentSong}?utm_source=generator`}
+                        width="300"
+                        height="80"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        title="Spotify Player"
+                    ></iframe>
+                </div>
+            )}
 
-          {showJournal && (
-            <div className="journal">
-              <h3>📓 Journal Entry</h3>
-              <textarea placeholder="How are you feeling today?" rows="6" cols="60" />
+
+
+            {/* Confetti */}
+            {showConfetti && (
+                <Confetti
+                    width={windowDimensions.width}
+                    height={windowDimensions.height}
+                    numberOfPieces={500} // default is 200
+                    recycle={false}      // only show once
+                    gravity={0.3}         // controls fall speed
+                    tweenDuration={8000} // animation duration
+                />
+            )}
+
+            {showWaterPopup && (
+                <div className="water-popup">
+                    <strong>Time to hydrate!💧</strong><br />
+                    Drink a glass of water. Your brain will thank you.
+                </div>
+            )}
+            {/* Dashboard */}
+            <div className="dashboard">
+                <h3>📊 GitHub Contributions</h3>
+                {/* <GitHubCalendar username="CSin007" /> */}
             </div>
-          )}
-
-          {showTasks && (
-            <div className="tasks">
-              <h3>📋 Task List</h3>
-              <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="New Task" />
-              <button onClick={handleAddTask}>Add Task</button>
-              <ul>
-                {tasks.map((task, idx) => (
-                  <li key={idx}>
-                    <input type="checkbox" checked={task.done} onChange={() => toggleTask(idx)} /> {task.text}
-                    <button onClick={() => deleteTask(idx)}>❌</button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {showQuoteBox && (
-            <div className="quote-popup">
-              <p>{quote}</p>
-              <button onClick={() => setShowQuoteBox(false)}>Close</button>
-            </div>
-          )}
         </div>
-
-        {showGame && (
-          <div className="right-panel">
-            <iframe
-              id="subwayGame"
-              src="https://subway-surfers.org/winter-holiday/"
-              title="Subway Surfers"
-              width="100%"
-              height="100%"
-              style={{ border: "none" }}
-            ></iframe>
-          </div>
-        )}
-      </div>
-
-      <audio id="calmMusic" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
-
-      {showConfetti && (
-        <Confetti width={windowDimensions.width} height={windowDimensions.height} />
-      )}
-      <div className="dashboard">
-        <h3>📊 GitHub Contributions</h3>
-        {/* <GitHubCalendar username="CSin007" /> */}
-
-      </div>
-    </div>
-  );
+    );
 };
 
 export default App;

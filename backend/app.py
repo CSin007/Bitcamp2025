@@ -55,21 +55,21 @@ def home():
 
 @app.route("/api/fitbit/sleep")
 def get_sleep_data():
-    doc = collection.find_one(sort=[("date", -1)])  # Get latest entry
-    if not doc:
-        return jsonify({})
+    # Get the 5 most recent documents sorted by date descending
+    docs = collection.find().sort("date", -1).limit(5)
 
-    sleep_summary = doc.get("sleep", {}).get("summary", {})
-    return jsonify(
-        {
-            "deep": sleep_summary.get("stages", {}).get("deep", 0),
-            "light": sleep_summary.get("stages", {}).get("light", 0),
-            "rem": sleep_summary.get("stages", {}).get("rem", 0),
-            "wake": sleep_summary.get("stages", {}).get("wake", 0),
-            "totalMinutesAsleep": sleep_summary.get("totalMinutesAsleep", 0),
-            "totalTimeInBed": sleep_summary.get("totalTimeInBed", 0),
-        }
-    )
+    # Transform documents into a list of dicts
+    result = []
+    for doc in docs:
+        result.append(
+            {
+                "date": doc.get("date"),
+                "steps": doc.get("steps", 0),
+                "totalMinutesAsleep": doc.get("totalMinutesAsleep", 0),
+            }
+        )
+
+    return jsonify(result)
 
 
 if __name__ == "__main__":
